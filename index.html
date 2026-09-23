@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ana Brillé · Joias e Acessórios</title>
+<meta name="description" content="Ana Brillé · Joias e Acessórios. Brilhe como a joia preciosa que Deus te criou." />
+<meta name="theme-color" content="#F4E9D8" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:          #F4E9D8;
+  --text-main:   #4A3B2C;
+  --text-muted:  #7A6A56;
+  --gold:        #C5A059;
+  --gold-light:  #E8D5A5;
+  --gold-deep:   #A67C3B;
+  --ease:        cubic-bezier(.2, .75, .25, 1);
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  touch-action: pan-y;
+}
+
+::selection { background: var(--gold); color: #fff; }
+
+/* ============================================================
+   CANVAS 3D
+   ============================================================ */
+#webgl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+#webgl.is-ready { opacity: 1; }
+
+#webgl.is-fallback {
+  background:
+    radial-gradient(circle at 75% 25%, rgba(197,160,89,.18), transparent 45%),
+    radial-gradient(circle at 20% 70%, rgba(197,160,89,.12), transparent 50%),
+    var(--bg);
+}
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(197,160,89,.12), transparent 65%),
+    radial-gradient(ellipse 50% 50% at 10% 75%, rgba(197,160,89,.08), transparent 60%),
+    radial-gradient(ellipse 100% 60% at 50% 110%, rgba(197,160,89,.10), transparent 70%);
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(244,233,216,.55) 85%, rgba(244,233,216,.9) 100%);
+}
+
+/* ============================================================
+   UI FIXA
+   ============================================================ */
+.progress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 2px; z-index: 60;
+  background: rgba(197,160,89,.15);
+}
+.progress__bar {
+  height: 100%; width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-deep) 60%, var(--gold));
+  box-shadow: 0 0 10px rgba(197,160,89,.5);
+}
+
+/* ============================================================
+   MARCA — LOGO "AB" + NOME
+   ============================================================ */
+.brand {
+  position: fixed;
+  top: calc(20px + var(--safe-top));
+  left: 28px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand__logo {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(166,124,59,.15));
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand__name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  color: var(--text-main);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.brand__sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .5rem;
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 500;
+  padding-left: 2px;
+  line-height: 1;
+}
+
+/* ============================================================
+   CONTEÚDO
+   ============================================================ */
+main { position: relative; z-index: 10; }
+
+.panel {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 14vh 7vw;
+}
+
+.panel--right  { justify-content: flex-end; }
+.panel--left   { justify-content: flex-start; }
+.panel--center { justify-content: center; text-align: center; }
+
+.panel__inner { max-width: 560px; width: 100%; }
+.panel--center .panel__inner { max-width: 680px; }
+
+.eyebrow {
+  font-size: .65rem;
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+.panel--center .eyebrow { justify-content: center; }
+.eyebrow::before {
+  content: '';
+  width: 34px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-deep));
+  flex: none;
+}
+.panel--center .eyebrow::after {
+  content: '';
+  width: 34px; height: 1px;
+  background: linear-gradient(270deg, transparent, var(--gold-deep));
+  flex: none;
+}
+
+.display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+  line-height: 1.02;
+  letter-spacing: -.01em;
+  color: var(--text-main);
+  text-wrap: balance;
+}
+
+.display em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--gold-deep);
+}
+
+.lede {
+  margin-top: 1.8rem;
+  font-size: clamp(.95rem, 1.1vw, 1.05rem);
+  line-height: 1.85;
+  color: var(--text-muted);
+  max-width: 46ch;
+  font-weight: 400;
+}
+.panel--center .lede { margin-inline: auto; }
+
+.tagline {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  color: var(--gold-deep);
+  margin-top: 1.5rem;
+  letter-spacing: .02em;
+}
+
+.reveal > * {
+  opacity: 0;
+  transform: translateY(34px);
+  filter: blur(6px);
+  transition:
+    opacity 1.15s var(--ease),
+    transform 1.25s var(--ease),
+    filter 1.15s var(--ease);
+}
+.reveal.is-visible > * {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+.reveal > *:nth-child(1) { transition-delay: .05s; }
+.reveal > *:nth-child(2) { transition-delay: .16s; }
+.reveal > *:nth-child(3) { transition-delay: .27s; }
+.reveal > *:nth-child(4) { transition-delay: .38s; }
+.reveal > *:nth-child(5) { transition-delay: .50s; }
+
+/* ============================================================
+   CTA
+   ============================================================ */
+.cta-wrap {
+  margin-top: 3rem;
+  display: inline-flex;
+  position: relative;
+}
+.panel--center .cta-wrap { justify-content: center; }
+
+.cta-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -18px -24px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(197,160,89,.4), transparent 70%);
+  filter: blur(18px);
+  animation: ctaPulse 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes ctaPulse {
+  0%, 100% { opacity: .4; transform: scale(.95); }
+  50%      { opacity: .9; transform: scale(1.05); }
+}
+
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .85rem;
+  padding: 1.15rem 2.4rem;
+  min-height: 52px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 12px 36px -10px rgba(166,124,59,.8);
+  overflow: hidden;
+  transition: transform .55s var(--ease), box-shadow .55s var(--ease), letter-spacing .55s var(--ease);
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+.cta:hover {
+  transform: translateY(-4px) scale(1.02);
+  letter-spacing: .22em;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.8),
+    0 20px 54px -12px rgba(166,124,59,1);
+}
+.cta:active { transform: translateY(-1px) scale(.99); }
+
+.cta::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -120%;
+  width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.75), transparent);
+  transform: skewX(-22deg);
+  animation: sweep 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sweep {
+  0%, 62% { left: -120%; }
+  100%    { left: 160%; }
+}
+
+.cta svg { flex: none; position: relative; z-index: 1; width: 18px; height: 18px; }
+.cta span { position: relative; z-index: 1; }
+
+.fineprint {
+  margin-top: 1.8rem;
+  font-size: .68rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: .7;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: calc(4.5vh + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  font-size: .58rem;
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: .6;
+  padding-left: .45em;
+}
+.scroll-cue i {
+  display: block;
+  width: 1px; height: 62px;
+  background: linear-gradient(to bottom, var(--gold-deep), transparent);
+  transform-origin: top center;
+  animation: cue 2.6s ease-in-out infinite;
+}
+@keyframes cue {
+  0%, 100% { opacity: .15; transform: scaleY(.45); }
+  45%      { opacity: 1;   transform: scaleY(1); }
+}
+
+.foot {
+  position: relative; z-index: 10;
+  padding: 0 7vw calc(5vh + var(--safe-bottom));
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  font-size: .62rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: .6;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 820px) {
+
+  .panel {
+    padding: 12vh 7vw calc(14vh + var(--safe-bottom));
+    align-items: flex-end;
+  }
+  .panel--center {
+    padding: 12vh 7vw calc(12vh + var(--safe-bottom));
+    align-items: flex-end;
+  }
+
+  .panel__inner { max-width: 100%; }
+
+  .brand {
+    top: calc(14px + var(--safe-top));
+    left: 18px;
+    gap: 10px;
+  }
+  .brand__logo {
+    width: 42px;
+    height: 42px;
+  }
+  .brand__name { font-size: 1rem; letter-spacing: .14em; }
+  .brand__sub { font-size: .44rem; letter-spacing: .34em; }
+
+  .display { font-size: clamp(2.2rem, 9.5vw, 3.2rem); line-height: 1.05; }
+  .lede { font-size: .9rem; line-height: 1.7; margin-top: 1.2rem; max-width: 100%; }
+  .tagline { font-size: 1.05rem; margin-top: 1rem; }
+  .eyebrow { font-size: .56rem; letter-spacing: .3em; margin-bottom: 1rem; }
+  .eyebrow::before, .panel--center .eyebrow::after { width: 22px; }
+
+  .cta-wrap { margin-top: 2rem; }
+  .cta {
+    padding: 1rem 1.8rem;
+    font-size: .7rem;
+    letter-spacing: .14em;
+    gap: .6rem;
+  }
+  .cta:hover { letter-spacing: .16em; }
+  .cta svg { width: 15px; height: 15px; }
+
+  .fineprint { font-size: .6rem; letter-spacing: .2em; margin-top: 1.4rem; }
+
+  .scroll-cue { bottom: calc(2.5vh + var(--safe-bottom)); gap: .6rem; }
+  .scroll-cue i { height: 40px; }
+
+  .foot {
+    padding: 0 7vw calc(3vh + var(--safe-bottom));
+    justify-content: center;
+    text-align: center;
+    font-size: .56rem;
+    letter-spacing: .22em;
+  }
+}
+
+@media (max-width: 380px) {
+  .display { font-size: 2rem; }
+  .lede { font-size: .85rem; }
+  .cta { padding: .95rem 1.5rem; font-size: .66rem; letter-spacing: .1em; }
+  .brand__logo { width: 36px; height: 36px; }
+  .brand__name { font-size: .92rem; }
+  .brand__sub { font-size: .4rem; letter-spacing: .28em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="webgl"></canvas>
+<div class="atmosphere"></div>
+<div class="vignette"></div>
+
+<div class="progress"><div class="progress__bar" id="progressBar"></div></div>
+
+<!-- ============================================================
+     MARCA — LOGO "AB" + NOME
+     ============================================================ -->
+<header class="brand">
+  <!-- Monograma AB recriado em SVG -->
+  <svg class="brand__logo" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"  stop-color="#E8D5A5"/>
+        <stop offset="50%" stop-color="#C5A059"/>
+        <stop offset="100%" stop-color="#A67C3B"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Letra A (elegante, itálica, com perna em swash) -->
+    <text x="0" y="58"
+          font-family="'Cormorant Garamond', Georgia, serif"
+          font-size="70"
+          font-weight="500"
+          font-style="italic"
+          fill="#4A3B2C"
+          letter-spacing="-2">A</text>
+
+    <!-- Letra B (serifada, mais pesada, sobreposta) -->
+    <text x="30" y="58"
+          font-family="'Cormorant Garamond', Georgia, serif"
+          font-size="70"
+          font-weight="600"
+          fill="#4A3B2C"
+          letter-spacing="-2">B</text>
+
+    <!-- Diamante pequeno em outline, na base do B -->
+    <g transform="translate(38, 44)">
+      <!-- Corpo do diamante (formato gota invertida lapidada) -->
+      <path d="M 0 0 L 12 0 L 16 5 L 6 14 L -4 5 Z"
+            fill="none" stroke="url(#goldGrad)" stroke-width="1.2" stroke-linejoin="round"/>
+      <!-- Linhas das facetas -->
+      <path d="M 0 0 L 6 5 L -4 5 M 12 0 L 6 5 L 16 5 M 0 0 L 12 0"
+            fill="none" stroke="url(#goldGrad)" stroke-width="0.9" stroke-linejoin="round" opacity="0.85"/>
+      <!-- Faceta central -->
+      <path d="M 6 5 L 6 14"
+            fill="none" stroke="url(#goldGrad)" stroke-width="0.8" opacity="0.7"/>
+    </g>
+
+    <!-- Estrelinha de 4 pontas no topo direito do B -->
+    <g transform="translate(62, 14)">
+      <path d="M 0 -7 L 1.2 -1.2 L 7 0 L 1.2 1.2 L 0 7 L -1.2 1.2 L -7 0 L -1.2 -1.2 Z"
+            fill="url(#goldGrad)"/>
+      <!-- Pequeno brilho secundário -->
+      <path d="M 0 -3.5 L 0.6 -0.6 L 3.5 0 L 0.6 0.6 L 0 3.5 L -0.6 0.6 L -3.5 0 L -0.6 -0.6 Z"
+            fill="#FFF8E0" opacity="0.7"/>
+    </g>
+  </svg>
+
+  <div class="brand__text">
+    <span class="brand__name">Ana Brillé</span>
+    <span class="brand__sub">Joias e Acessórios</span>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel panel--left">
+    <div class="panel__inner reveal">
+      <p class="eyebrow">Ana Brillé</p>
+      <h1 class="display">Brilhe como a<br><em>joia preciosa</em><br>que Deus te criou</h1>
+      <p class="tagline">— Uma seleção feita com carinho pra você.</p>
+    </div>
+
+    <div class="scroll-cue">
+      <span>Role</span>
+      <i></i>
+    </div>
+  </section>
+
+  <section class="panel panel--right">
+    <div class="panel__inner reveal">
+      <p class="eyebrow">Seu toque pessoal</p>
+      <h2 class="display">Detalhes que<br><em>iluminam o dia</em></h2>
+      <p class="lede">
+        Um acessório certo muda o look, eleva o astral
+        e deixa tudo com a sua vibe.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel panel--left">
+    <div class="panel__inner reveal">
+      <p class="eyebrow">Todos os dias é dia</p>
+      <h2 class="display">Sua luz interior,<br><em>no seu estilo</em></h2>
+      <p class="lede">
+        Porque se sentir bem é o melhor acessório
+        que a gente pode usar.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel panel--center">
+    <div class="panel__inner reveal">
+      <p class="eyebrow">Vem ver de pertinho</p>
+      <h2 class="display">Fiz uma<br><em>seleção pra você</em></h2>
+      <p class="lede">
+        Clica no botão e recebe o catálogo completo
+        com todas as peças disponíveis.
+      </p>
+
+      <div class="cta-wrap">
+        <a class="cta"
+           href="https://wa.me/5581987296954?text=Ol%C3%A1%20Ana%20Brill%C3%A9!%20Vi%20a%20p%C3%A1gina%20e%20gostaria%20de%20ver%20o%20cat%C3%A1logo%20%E2%9C%A8"
+           target="_blank"
+           rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+          </svg>
+          <span>Ver catálogo no WhatsApp</span>
+        </a>
+      </div>
+
+      <p class="fineprint">Atendimento personalizado ✨</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span>© <span id="year"></span> Ana Brillé Joias</span>
+  <span>Com carinho, pra você</span>
+</footer>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+/* ============================================================
+   DETECÇÃO E SUPORTE
+   ============================================================ */
+const canvas = document.getElementById('webgl');
+
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const isMobile = isTouchDevice && innerWidth < 900;
+const isVerySmall = innerWidth < 380;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function supportsWebGL() {
+  try {
+    const test = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext &&
+      (test.getContext('webgl2') || test.getContext('webgl') || test.getContext('experimental-webgl')));
+  } catch (e) {
+    return false;
+  }
+}
+
+if (!supportsWebGL()) {
+  canvas.classList.add('is-fallback');
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+  document.getElementById('year').textContent = new Date().getFullYear();
+  throw new Error('WebGL não suportado — modo fallback ativado.');
+}
+
+const THREE = await import('three');
+
+/* ============================================================
+   SETUP
+   ============================================================ */
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 220);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: !isMobile,
+  powerPreference: 'high-performance',
+  alpha: false
+});
+
+const DPR = isMobile ? 1.5 : Math.min(devicePixelRatio, 2);
+renderer.setPixelRatio(DPR);
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0xF4E9D8, 1);
+
+scene.fog = new THREE.FogExp2(0xF4E9D8, 0.006);
+
+/* ============================================================
+   ESTÚDIO DE LUZ VIRTUAL
+   ============================================================ */
+function buildStudioEnvironment() {
+  const envScene = new THREE.Scene();
+
+  const baseGeo = new THREE.SphereGeometry(60, 24, 24);
+  const baseMat = new THREE.MeshBasicMaterial({ color: 0x4a3d2c, side: THREE.BackSide });
+  envScene.add(new THREE.Mesh(baseGeo, baseMat));
+
+  const addLight = (color, pos, size, rot) => {
+    const panel = new THREE.Mesh(
+      new THREE.PlaneGeometry(size[0], size[1]),
+      new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+    );
+    panel.position.set(pos[0], pos[1], pos[2]);
+    if (rot) panel.rotation.set(rot[0], rot[1], rot[2]);
+    envScene.add(panel);
+  };
+
+  addLight(0xffffff, [0, 22, 0], [22, 22], [Math.PI / 2, 0, 0]);
+  addLight(0xfff0d0, [-20, 6, 0], [16, 22], [0, Math.PI / 2, 0]);
+  addLight(0xf0f4ff, [20, 6, 0], [16, 22], [0, -Math.PI / 2, 0]);
+  addLight(0xffffff, [0, 4, 20], [22, 16], [0, 0, 0]);
+  addLight(0xfff5e0, [0, 8, -20], [22, 16], [0, Math.PI, 0]);
+
+  const sparkGeo = new THREE.SphereGeometry(1.8, 10, 10);
+  const sparkMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const sparkPositions = [
+    [-10, 14, 8], [12, 10, -6], [0, 18, -12],
+    [-14, 8, -10], [10, 16, 10], [-6, -4, 14], [8, -2, -14]
+  ];
+  sparkPositions.forEach(p => {
+    const s = new THREE.Mesh(sparkGeo, sparkMat);
+    s.position.set(p[0], p[1], p[2]);
+    envScene.add(s);
+  });
+
+  return envScene;
+}
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envRT = pmrem.fromScene(buildStudioEnvironment(), isMobile ? 0.06 : 0.03);
+scene.environment = envRT.texture;
+
+/* ============================================================
+   LUZES
+   ============================================================ */
+const key = new THREE.DirectionalLight(0xFFF5E6, 1.2);
+key.position.set(6, 14, 8);
+scene.add(key);
+
+const fill = new THREE.PointLight(0xE8D5A5, 30, 70, 2);
+fill.position.set(-8, 4, -10);
+scene.add(fill);
+
+const warmAccent = new THREE.PointLight(0xD9B06A, 45, 80, 2);
+warmAccent.position.set(8, -4, -28);
+scene.add(warmAccent);
+
+const portalLight = new THREE.PointLight(0xC5A059, 70, 50, 2);
+portalLight.position.set(0, 0, -46);
+scene.add(portalLight);
+
+const ambient = new THREE.AmbientLight(0xFFFFFF, 0.25);
+scene.add(ambient);
+
+/* ============================================================
+   MATERIAIS
+   ============================================================ */
+const goldMat = new THREE.MeshPhysicalMaterial({
+  color: 0xFFC96B,
+  metalness: 1.0,
+  roughness: 0.08,
+  envMapIntensity: 2.4,
+  clearcoat: 0.4,
+  clearcoatRoughness: 0.05
+});
+
+const goldBrightMat = new THREE.MeshPhysicalMaterial({
+  color: 0xFFD98A,
+  metalness: 1.0,
+  roughness: 0.05,
+  envMapIntensity: 2.8,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.03
+});
+
+const diamondMatProps = {
+  color: 0xFFFFFF,
+  metalness: 0.55,
+  roughness: 0.015,
+  envMapIntensity: 5.5,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0,
+  specularIntensity: 1.0,
+  flatShading: true
+};
+if (!isMobile) {
+  diamondMatProps.iridescence = 0.45;
+  diamondMatProps.iridescenceIOR = 2.0;
+  diamondMatProps.iridescenceThicknessRange = [100, 500];
+}
+const diamondMat = new THREE.MeshPhysicalMaterial(diamondMatProps);
+
+/* ============================================================
+   GEMA
+   ============================================================ */
+function buildBrilliantGeometry(segs) {
+  const tableR = 0.55;
+  const starR  = 0.78;
+  const girdleR = 1.0;
+  const crownH = 0.36;
+  const starY  = crownH * 0.42;
+  const pavH   = 0.95;
+
+  const pos = [];
+  const idx = [];
+  const addV = (x, y, z) => {
+    pos.push(x, y, z);
+    return pos.length / 3 - 1;
+  };
+
+  const TAU = Math.PI * 2;
+  const step = TAU / segs;
+  const half = step / 2;
+
+  const tableCenter = addV(0, crownH, 0);
+  const table  = [];
+  const star   = [];
+  const girdle = [];
+
+  for (let i = 0; i < segs; i++) {
+    const a1 = i * step;
+    const a2 = a1 + half;
+    table.push(addV(Math.cos(a1) * tableR,  crownH, Math.sin(a1) * tableR));
+    star.push( addV(Math.cos(a2) * starR,   starY,  Math.sin(a2) * starR));
+    girdle.push(addV(Math.cos(a1) * girdleR, 0,     Math.sin(a1) * girdleR));
+  }
+
+  const culet = addV(0, -pavH, 0);
+
+  for (let i = 0; i < segs; i++) {
+    const n = (i + 1) % segs;
+    idx.push(tableCenter, table[n], table[i]);
+  }
+  for (let i = 0; i < segs; i++) {
+    const n = (i + 1) % segs;
+    idx.push(table[i], table[n], star[i]);
+  }
+  for (let i = 0; i < segs; i++) {
+    const p = (i - 1 + segs) % segs;
+    idx.push(table[i], girdle[i], star[p]);
+  }
+  for (let i = 0; i < segs; i++) {
+    idx.push(table[i], star[i], girdle[i]);
+  }
+  for (let i = 0; i < segs; i++) {
+    const n = (i + 1) % segs;
+    idx.push(star[i], girdle[n], girdle[i]);
+  }
+  for (let i = 0; i < segs; i++) {
+    const n = (i + 1) % segs;
+    idx.push(girdle[i], culet, girdle[n]);
+  }
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+const gemGeo = buildBrilliantGeometry(isMobile ? 6 : 8);
+
+/* ============================================================
+   OBJETOS
+   ============================================================ */
+function makeDiamond() {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(gemGeo, diamondMat));
+  return g;
+}
+
+function makeRing() {
+  const g = new THREE.Group();
+  const torusSeg = isMobile ? 80 : 140;
+  const band = new THREE.Mesh(
+    new THREE.TorusGeometry(0.92, 0.075, isMobile ? 14 : 20, torusSeg),
+    goldMat
+  );
+  g.add(band);
+
+  const solitaire = new THREE.Mesh(gemGeo, diamondMat);
+  solitaire.scale.setScalar(0.55);
+  solitaire.position.y = 1.08;
+  g.add(solitaire);
+
+  const prongGeo = new THREE.CylinderGeometry(0.022, 0.03, 0.32, 6);
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const p = new THREE.Mesh(prongGeo, goldBrightMat);
+    p.position.set(Math.cos(a) * 0.30, 0.98, Math.sin(a) * 0.30);
+    p.rotation.z = -Math.cos(a) * 0.22;
+    p.rotation.x = Math.sin(a) * 0.22;
+    g.add(p);
+  }
+
+  const basket = new THREE.Mesh(
+    new THREE.TorusGeometry(0.32, 0.028, 8, 32),
+    goldBrightMat
+  );
+  basket.rotation.x = Math.PI / 2;
+  basket.position.y = 0.92;
+  g.add(basket);
+
+  return g;
+}
+
+function makeNecklace() {
+  const g = new THREE.Group();
+  const N = isMobile ? 70 : 110;
+  const halfW = 1.62;
+  const beadGeo = new THREE.SphereGeometry(0.042, isMobile ? 8 : 12, isMobile ? 6 : 10);
+  const beads = new THREE.InstancedMesh(beadGeo, goldMat, N + 1);
+  const dummy = new THREE.Object3D();
+
+  for (let i = 0; i <= N; i++) {
+    const u = i / N;
+    const x = THREE.MathUtils.lerp(-halfW, halfW, u);
+    const nx = x / halfW;
+    const y = -1.0 + 1.0 * nx * nx;
+    const z = -0.42 * nx * nx;
+    dummy.position.set(x, y, z);
+    const s = 1 + 0.45 * (1 - Math.abs(nx));
+    dummy.scale.setScalar(s);
+    dummy.updateMatrix();
+    beads.setMatrixAt(i, dummy.matrix);
+  }
+  beads.instanceMatrix.needsUpdate = true;
+  g.add(beads);
+
+  const bail = new THREE.Mesh(
+    new THREE.TorusGeometry(0.075, 0.02, 8, 24),
+    goldBrightMat
+  );
+  bail.position.set(0, -1.08, 0);
+  bail.rotation.y = Math.PI / 2;
+  g.add(bail);
+
+  const pendant = new THREE.Mesh(gemGeo, diamondMat);
+  pendant.scale.setScalar(0.72);
+  pendant.position.set(0, -1.48, 0);
+  g.add(pendant);
+
+  return g;
+}
+
+function makePortal() {
+  const g = new THREE.Group();
+  const outer = new THREE.Mesh(
+    new THREE.TorusGeometry(3.0, 0.055, isMobile ? 10 : 14, isMobile ? 120 : 220),
+    goldBrightMat
+  );
+  g.add(outer);
+
+  const inner = new THREE.Mesh(
+    new THREE.TorusGeometry(2.72, 0.02, 8, isMobile ? 100 : 200),
+    new THREE.MeshBasicMaterial({
+      color: 0xE8D5A5, transparent: true, opacity: 0.5,
+      depthWrite: false
+    })
+  );
+  g.add(inner);
+
+  const glow = new THREE.Mesh(
+    new THREE.RingGeometry(2.55, 3.3, 60),
+    new THREE.MeshBasicMaterial({
+      color: 0xC5A059, transparent: true, opacity: 0.08,
+      side: THREE.DoubleSide, depthWrite: false
+    })
+  );
+  g.add(glow);
+
+  return g;
+}
+
+/* ============================================================
+   ATORES
+   ============================================================ */
+const ACTOR_DEFS = [
+  { key: 'diamond',  build: makeDiamond,  pos: [ 3.60,  0.35, -10.0], scale: 1.55, spin: 0.22, float: 0.24, tilt: 0.10 },
+  { key: 'ring',     build: makeRing,     pos: [-3.20,  0.10, -22.0], scale: 1.55, spin: 0.32, float: 0.34, tilt: 0.22 },
+  { key: 'necklace', build: makeNecklace, pos: [ 2.90, -0.10, -33.0], scale: 1.40, spin: 0.20, float: 0.38, tilt: 0.12 },
+  { key: 'portal',   build: makePortal,   pos: [ 0.00,  0.00, -46.0], scale: 1.00, spin: 0.00, float: 0.14, tilt: 0.00 }
+];
+
+const actors = ACTOR_DEFS.map(def => {
+  const obj = def.build();
+  scene.add(obj);
+  return { def, obj, base: new THREE.Vector3(), baseScale: 1 };
+});
+
+/* ============================================================
+   PARTÍCULAS
+   ============================================================ */
+const PARTICLE_COUNT = isMobile ? 220 : 700;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PARTICLE_COUNT * 3);
+const pSeed = new Float32Array(PARTICLE_COUNT);
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  pPos[i * 3 + 0] = (Math.random() - 0.5) * 55;
+  pPos[i * 3 + 1] = (Math.random() - 0.5) * 34;
+  pPos[i * 3 + 2] = 14 - Math.random() * 86;
+  pSeed[i] = Math.random() * Math.PI * 2;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+const pMat = new THREE.PointsMaterial({
+  color: 0xB88A4A,
+  size: isMobile ? 0.085 : 0.07,
+  sizeAttenuation: true,
+  transparent: true,
+  opacity: 0.5,
+  depthWrite: false
+});
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+function layout() {
+  const aspect = innerWidth / innerHeight;
+  const mobile = innerWidth < 820;
+
+  let xFactor, sFactor, yOffset, zOffset;
+
+  if (mobile) {
+    xFactor = THREE.MathUtils.clamp(aspect * 0.55, 0.45, 0.75);
+    sFactor = THREE.MathUtils.clamp(0.55 + aspect * 0.20, 0.60, 0.85);
+    yOffset = 1.9;
+    zOffset = -1.5;
+  } else {
+    xFactor = THREE.MathUtils.clamp(aspect * 0.62, 0.42, 1.10);
+    sFactor = THREE.MathUtils.clamp(0.52 + aspect * 0.30, 0.60, 1.0);
+    yOffset = 0;
+    zOffset = 0;
+  }
+
+  actors.forEach(a => {
+    a.base.set(
+      a.def.pos[0] * xFactor,
+      a.def.pos[1] + yOffset,
+      a.def.pos[2] + zOffset
+    );
+    a.baseScale = a.def.scale * sFactor;
+    a.obj.scale.setScalar(a.baseScale);
+  });
+
+  camera.aspect = aspect;
+  camera.updateProjectionMatrix();
+}
+
+layout();
+
+/* ============================================================
+   SCROLL
+   ============================================================ */
+const CAM_START_Z = 6;
+const CAM_END_Z   = -38;
+
+const progressBar = document.getElementById('progressBar');
+let rawProgress = 0;
+let smoothProgress = 0;
+
+function readScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  rawProgress = max > 0 ? THREE.MathUtils.clamp(scrollY / max, 0, 1) : 0;
+  progressBar.style.transform = `scaleX(${rawProgress})`;
+}
+addEventListener('scroll', readScroll, { passive: true });
+readScroll();
+
+/* ============================================================
+   POINTER + TOUCH
+   ============================================================ */
+const pointer = { x: 0, y: 0 };
+const pointerTarget = { x: 0, y: 0 };
+
+function updatePointerTarget(clientX, clientY) {
+  pointerTarget.x = (clientX / innerWidth) * 2 - 1;
+  pointerTarget.y = -((clientY / innerHeight) * 2 - 1);
+}
+
+addEventListener('pointermove', e => {
+  if (e.pointerType === 'touch') return;
+  updatePointerTarget(e.clientX, e.clientY);
+}, { passive: true });
+
+addEventListener('touchmove', e => {
+  if (e.touches.length > 0) {
+    updatePointerTarget(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: true });
+
+addEventListener('touchend', () => {
+  pointerTarget.x = 0;
+  pointerTarget.y = 0;
+}, { passive: true });
+
+/* ============================================================
+   LOOP
+   ============================================================ */
+const clock = new THREE.Clock();
+
+function tick() {
+  const t = clock.getElapsedTime();
+
+  smoothProgress += (rawProgress - smoothProgress) * 0.085;
+  pointer.x += (pointerTarget.x - pointer.x) * 0.05;
+  pointer.y += (pointerTarget.y - pointer.y) * 0.05;
+
+  const pMul = isMobile ? 0.5 : 0.7;
+
+  const camZ = CAM_START_Z + (CAM_END_Z - CAM_START_Z) * smoothProgress;
+  camera.position.set(pointer.x * pMul, pointer.y * pMul * 0.7, camZ);
+  camera.rotation.set(pointer.y * 0.03, -pointer.x * 0.04, 0);
+
+  actors.forEach((a, i) => {
+    const d = a.def;
+
+    a.obj.position.x = a.base.x;
+    a.obj.position.z = a.base.z;
+    a.obj.position.y = a.base.y + Math.sin(t * 0.7 + i * 2.1) * d.float;
+
+    if (d.key === 'portal') {
+      a.obj.rotation.y = Math.sin(t * 0.24) * 0.34;
+      a.obj.rotation.x = Math.sin(t * 0.17) * 0.14;
+      a.obj.rotation.z = t * 0.05;
+      const pulse = 1 + Math.sin(t * 1.1) * 0.012;
+      a.obj.scale.setScalar(a.baseScale * pulse);
+    } else {
+      a.obj.rotation.y = t * d.spin + smoothProgress * Math.PI * 1.6 + i * 1.3;
+      a.obj.rotation.x = Math.sin(t * 0.42 + i * 1.7) * d.tilt;
+      a.obj.rotation.z = Math.sin(t * 0.33 + i) * 0.06;
+    }
+  });
+
+  const pArr = pGeo.attributes.position.array;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const s = pSeed[i];
+    pArr[i * 3 + 1] += Math.sin(t * 0.35 + s) * 0.0016;
+    pArr[i * 3 + 0] += Math.cos(t * 0.28 + s) * 0.0013;
+  }
+  pGeo.attributes.position.needsUpdate = true;
+  particles.rotation.z = t * 0.008;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   REVEAL + FADE-IN
+   ============================================================ */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('is-visible', entry.isIntersecting);
+  });
+}, { threshold: 0.25, rootMargin: '-8% 0px -8% 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+requestAnimationFrame(() => {
+  renderer.render(scene, camera);
+  canvas.classList.add('is-ready');
+
+  if (reduceMotion) {
+    renderer.render(scene, camera);
+  } else {
+    requestAnimationFrame(tick);
+  }
+});
+
+/* ============================================================
+   RESIZE
+   ============================================================ */
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const dpr = innerWidth < 820 ? 1.5 : Math.min(devicePixelRatio, 2);
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(innerWidth, innerHeight);
+    layout();
+    readScroll();
+  }, 150);
+});
+
+/* ============================================================
+   ANO
+   ============================================================ */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ============================================================
+   LIMPEZA
+   ============================================================ */
+addEventListener('pagehide', () => {
+  gemGeo.dispose();
+  diamondMat.dispose();
+  goldMat.dispose();
+  goldBrightMat.dispose();
+  pGeo.dispose();
+  pMat.dispose();
+  pmrem.dispose();
+  renderer.dispose();
+});
+</script>
+
+</body>
+</html>
